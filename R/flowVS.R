@@ -8,31 +8,42 @@
 ##  is stored in the ith entry of the returned vector
 ## ========================================================================================
 
-estParamFlowVS = function(fs, channels)
+estParamFlowVS <- function(fs, channels)
 {
-  ## some error checking
-  checkClass(fs, "flowSet")
-  checkClass(channels, "character")
+  # Register a parallel backend
+  registerDoParallel(cores = detectCores() - 1)
+  
+  # Check the input types
+  if (class(fs) != "flowSet") stop("The input 'fs' must be a 'flowSet'.")
+  if (class(channels) != "character") stop("The input 'channels' must be 'character'.")
+  
+  # Check if all channels are present in the flowSet
   nmatch = which(channels %in% colnames(fs))
   if(length(nmatch) != length(channels))
     stop(" At least one channel name is not present in the flowSet.")
-  
-  cofactors = NULL
-  ## estimate optimum cofactors
-  for(col in channels)
-  {
-    cat("====================================================================\n")
-    cat("Channel ", col, ' : ')
-    cat("Finding optimum cofactor for asinh transformation\n")
-    cat("====================================================================\n")
-    fs1D = fs[,col]
-    cf = optimStat(fs1D)
-    cofactors = c(cofactors, cf)
-    cat("\n Optimum cofactor for ", col, " : ", cf, "\n")
-    cat("====================================================================\n\n")
+  print("befoire")
+  # Loop over each channel in parallel
+  results <- foreach(i = seq_along(channels)) %dopar% {
+    # Get the channel name
+    channel <- channels[i]
+    
+    # Create a new flowSet with only this channel
+    fs1D <- flowCore::fsApply(fs, function(ff) {ff[, channel]})
+    
+    # Get the optimum cofactor for the channel
+    cf <- flowVS:::optimStat(fs1D)
+    
+    # Return the cofactor
+    return(list(channel = channel, cofactor = cf))
   }
-  return (cofactors)
+  
+  # Assign the results to the cofactors vector
+  cofactors <- setNames(unlist(lapply(results, `[[`, 'cofactor')), unlist(lapply(results, `[[`, 'channel')))
+  
+  # Return the cofactors
+  return(cofactors)
 }
+
 
 
 ## ========================================================================================

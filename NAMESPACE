@@ -2,8 +2,9 @@ import(methods)
 import(flowCore)
 importMethodsFrom(flowViz, densityplot, xyplot)
 import(flowStats)
-
-
+import(doParallel)
+import(foreach)
+import(parallel)
 
 
 export(transFlowVS)
