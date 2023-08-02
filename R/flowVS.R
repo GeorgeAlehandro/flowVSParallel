@@ -10,9 +10,10 @@
 
 estParamFlowVS <- function(fs, channels)
 {
+  num_cores <- detectCores()
+  message(paste0("Detected ", num_cores, " cores. Using ", num_cores - 1, "!"))
   # Register a parallel backend
-  registerDoParallel(cores = detectCores() - 1)
-  
+  registerDoParallel(cores = num_cores - 1)
   # Check the input types
   if (class(fs) != "flowSet") stop("The input 'fs' must be a 'flowSet'.")
   if (class(channels) != "character") stop("The input 'channels' must be 'character'.")
@@ -21,7 +22,7 @@ estParamFlowVS <- function(fs, channels)
   nmatch = which(channels %in% colnames(fs))
   if(length(nmatch) != length(channels))
     stop(" At least one channel name is not present in the flowSet.")
-  print("befoire")
+  message("Launching parallel calculations...")
   # Loop over each channel in parallel
   results <- foreach(i = seq_along(channels)) %dopar% {
     # Get the channel name
