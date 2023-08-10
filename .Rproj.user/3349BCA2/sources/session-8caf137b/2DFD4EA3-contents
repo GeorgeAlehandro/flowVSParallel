@@ -8,6 +8,7 @@ import(parallel)
 
 export(transFlowVS)
 export(estParamFlowVS)
+export(estParamFlowVS)
 export(lymphs)
 export(microVS)
 export(plotMeanSd)
