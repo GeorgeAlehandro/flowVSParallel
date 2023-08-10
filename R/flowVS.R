@@ -32,7 +32,7 @@ estParamFlowVS <- function(fs, channels)
     fs1D <- flowCore::fsApply(fs, function(ff) {ff[, channel]})
     
     # Get the optimum cofactor for the channel
-    cf <- flowVS:::optimStat(fs1D)
+    cf <- optimStat(fs1D)
     
     # Return the cofactor
     return(list(channel = channel, cofactor = cf))
