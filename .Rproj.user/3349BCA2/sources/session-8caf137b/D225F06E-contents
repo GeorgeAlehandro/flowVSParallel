@@ -1,0 +1,57 @@
+
+library(flowCore)
+library(flowVSParallel)
+#setwd("I:\\Plateformes\\Cytometrie\\Analyses\\Andréa/23-Jul-19-EXT215-COMPAN-V4/")
+setwd("D:/split/")
+fcs_files <- list.files(pattern = ".fcs")
+
+
+
+
+flow.frames <- lapply(c(1:length(fcs_files)),function(i){
+  fcs <- read.FCS(fcs_files[[i]])
+  print(dim(fcs@exprs))
+  return(fcs)
+})
+## Extract names for future replacement
+list_of_names<-list()
+list_of_names <- lapply(c(1:length(flow.frames)),function(i){
+  list_of_names[[i]] <- flow.frames[[i]]@description$GUID
+})
+## All markers except time
+markers = colnames(flow.frames[[1]])[5:10]
+## Run FlowVS
+#cofactors <- readRDS("I:/Plateformes/Cytometrie/Analyses/Andréa/23-Jul-13-EXT215-COMPAN-V3/DATA COMPENSE/cofactors.RDS")
+# start <- Sys.time()
+# cofactors=estParamFlowVSParallel(flowSet(flow.frames),channels=markers)
+# end <- Sys.time()
+# print("Parallel took:")
+# print(end - start)
+start <- Sys.time()
+cofactors=estParamFlowVS(flowSet(flow.frames),channels=markers)
+end <- Sys.time()
+print("Parallel took:")
+print(end - start)
+#saveRDS(cofactors, "cofactors.RDS")
+## Because the session ended while working..
+#cofactors <- c(15417.21, 1521.68, 23375.60, 15846.99, 0.32, 0.37, 10910.40, 21442.83, 20771, 15996, 1660.82, 590.18, 2052.91, 1308.74, 237.32, 692.58, 2012.67, 831.85, 15222.40, 19.81, 668.21, 396.25, 25062.31, 166.15, 1478.65,387, 1977.11, 968.67,23.96,4937.44)
+print("done estParamFlowVS")
+
+## Transform based on flowVS cofactors
+flowVS.transformed<-flowVS::transFlowVS(flowSet(flow.frames),channels=markers,cofactors)
+print("done flow transFlowVS")
+flow.frames.new <- flowSet_to_list(flowVS.transformed)
+dir.create("flowVS_transformed")
+## Write FCS files while changing names
+lapply(c(1:length(flow.frames.new)),function(i){
+  
+  flow.frames[[i]]@description$GUID <- list_of_names[[i]]
+  print(dim(flow.frames.new[[i]]@exprs))
+  without_fcs <- sub(".fcs","_flowVS_transformed.fcs",list_of_names[[i]])
+  flow.frames.new[[i]]@parameters@data$desc<-flow.frames[[1]]@parameters@data$desc
+  print(flow.frames.new[[i]]@parameters@data$desc)
+  write.FCS(flow.frames.new[[i]], paste0("flowVS_transformed/", without_fcs))
+})
+
+
+
