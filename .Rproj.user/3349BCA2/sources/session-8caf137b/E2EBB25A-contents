@@ -123,9 +123,7 @@ densityPeaks <- function(y, stain, bwFac = 2, plot=FALSE, save.plot=FALSE, popul
     
     
     #population = y.sel[ y.sel>=min.range & y.sel<= max.range]
-    if(!is.na(p[1]) && !is.na(max.range) && !is.na(min.range))
-      print('hhh')
-    {
+    if(!is.na(p[1]) && !is.na(max.range) && !is.na(min.range)){
       print("p[1]")
       print(p[1])
       print("nrow peaks")
