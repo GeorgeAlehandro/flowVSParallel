@@ -45,6 +45,31 @@ estParamFlowVS <- function(fs, channels)
   return(cofactors)
 }
 
+estNonParallelParamFlowVS = function(fs, channels)
+{
+  ## some error checking
+  checkClass(fs, "flowSet")
+  checkClass(channels, "character")
+  nmatch = which(channels %in% colnames(fs))
+  if(length(nmatch) != length(channels))
+    stop(" At least one channel name is not present in the flowSet.")
+  
+  cofactors = NULL
+  ## estimate optimum cofactors
+  for(col in channels)
+  {
+    cat("====================================================================\n")
+    cat("Channel ", col, ' : ')
+    cat("Finding optimum cofactor for asinh transformation\n")
+    cat("====================================================================\n")
+    fs1D = fs[,col]
+    cf = optimStat(fs1D)
+    cofactors = c(cofactors, cf)
+    cat("\n Optimum cofactor for ", col, " : ", cf, "\n")
+    cat("====================================================================\n\n")
+  }
+  return (cofactors)
+}
 
 
 ## ========================================================================================
