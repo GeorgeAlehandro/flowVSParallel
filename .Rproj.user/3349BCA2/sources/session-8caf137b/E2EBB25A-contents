@@ -124,18 +124,8 @@ densityPeaks <- function(y, stain, bwFac = 2, plot=FALSE, save.plot=FALSE, popul
     
     #population = y.sel[ y.sel>=min.range & y.sel<= max.range]
     if(!is.na(p[1]) && !is.na(max.range) && !is.na(min.range)){
-      print("p[1]")
-      print(p[1])
-      print("nrow peaks")
-      print(nrow(peaks))
       ### check skewness in the population 
-      print("min range")
-      print(min.range)
-      print("max range")
-      print(max.range)
       r = (max.range-p[1])/(p[1]-min.range)
-      print("r")
-      print(r)
       if(r >=3 && i==nrow(peaks)) ##rightmost popualtion 
       {
         right = min(max.range, p[1]+3*(p[1]-min.range)  )
